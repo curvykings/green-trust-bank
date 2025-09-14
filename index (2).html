@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Green Trust Bank</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-container, .dashboard {
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      width: 95%;
+      max-width: 420px;
+    }
+    .login-container h2, .dashboard h2 {
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #1db954;
+      color: #fff;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .hidden { display: none; }
+    .hamburger {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      cursor: pointer;
+      font-size: 28px;
+      z-index: 20;
+    }
+    .menu {
+      position: fixed;
+      top: 0; left: -260px;
+      width: 240px;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      transition: left 0.3s ease;
+      padding: 20px;
+      z-index: 15;
+    }
+    .menu.active { left: 0; }
+    .menu a {
+      display: block;
+      padding: 14px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .balance {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 1.4em;
+      font-weight: bold;
+    }
+    .transactions {
+      max-height: 280px;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .transaction {
+      padding: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      font-size: 14px;
+    }
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      z-index: 30;
+    }
+    .modal.active { visibility: visible; }
+    .modal-content {
+      background: #222;
+      padding: 20px;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 90%;
+      color: #fff;
+      position: relative;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 18px;
+    }
+    .settings-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    img.profile-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      border: 2px solid #1db954;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container" id="login">
+    <h2>Green Trust Bank</h2>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="dashboard hidden" id="dashboard">
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <h2 id="accountName">Jan Pieter</h2>
+    <div class="balance">Balance: $600,000,000.00</div>
+    <button onclick="sendMoney()">Send Money</button><br><br>
+    <button onclick="receiveMoney()">Receive Money</button>
+    <h3>Transactions</h3>
+    <div class="transactions" id="transactions"></div>
+  </div>
+
+  <div class="menu" id="menu">
+    <a href="#" onclick="openService('Accounts')">Accounts</a>
+    <a href="#" onclick="openService('Transfers')">Transfers</a>
+    <a href="#" onclick="openService('Investments')">Investments</a>
+    <a href="#" onclick="openService('Support')">Support</a>
+    <a href="#" onclick="openSettings()">Settings</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+
+  <div class="modal" id="popupModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closePopup()">✖</span>
+      <p id="popupText"></p>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeSettings()">✖</span>
+      <h3>Account Settings</h3>
+      <div class="settings-preview">
+        <img id="profilePreview" class="profile-pic" src="" alt="Profile Picture">
+      </div>
+      <label>Name:</label>
+      <input type="text" id="nameInput"><br>
+      <label>Email:</label>
+      <input type="email" id="emailInput"><br>
+      <label>Phone:</label>
+      <input type="tel" id="phoneInput"><br>
+      <label>Password:</label>
+      <input type="password" id="passwordInput"><br>
+      <label>Profile Picture:</label>
+      <input type="file" id="profilePicInput" accept="image/*"><br><br>
+      <button onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+
+  <script>
+    function login() {
+      document.getElementById("login").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+      loadTransactions();
+      loadSettings();
+    }
+    function toggleMenu() {
+      document.getElementById("menu").classList.toggle("active");
+    }
+    function openService(name) {
+      document.getElementById("popupText").innerText = "Please contact support to unblock your account";
+      document.getElementById("popupModal").classList.add("active");
+    }
+    function closePopup() {
+      document.getElementById("popupModal").classList.remove("active");
+    }
+    function sendMoney() {
+      document.getElementById("popupText").innerText = "YOUR ACCOUNT HAS BEEN FROZEN";
+      document.getElementById("popupModal").classList.add("active");
+    }
+    function receiveMoney() {
+      openService("Receive");
+    }
+    function logout() {
+      document.getElementById("dashboard").classList.add("hidden");
+      document.getElementById("login").classList.remove("hidden");
+    }
+    function openSettings() {
+      document.getElementById("settingsModal").classList.add("active");
+      document.getElementById("nameInput").value = localStorage.getItem("accountName") || "";
+      document.getElementById("emailInput").value = localStorage.getItem("accountEmail") || "";
+      document.getElementById("phoneInput").value = localStorage.getItem("accountPhone") || "";
+      document.getElementById("passwordInput").value = localStorage.getItem("accountPassword") || "";
+      document.getElementById("profilePreview").src = localStorage.getItem("profilePic") || "";
+    }
+    function closeSettings() {
+      document.getElementById("settingsModal").classList.remove("active");
+    }
+    function saveSettings() {
+      const name = document.getElementById("nameInput").value;
+      const email = document.getElementById("emailInput").value;
+      const phone = document.getElementById("phoneInput").value;
+      const password = document.getElementById("passwordInput").value;
+      const fileInput = document.getElementById("profilePicInput");
+
+      if(name) {
+        document.getElementById("accountName").innerText = name;
+        localStorage.setItem("accountName", name);
+      }
+      if(email) localStorage.setItem("accountEmail", email);
+      if(phone) localStorage.setItem("accountPhone", phone);
+      if(password) localStorage.setItem("accountPassword", password);
+
+      if(fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          localStorage.setItem("profilePic", e.target.result);
+          document.getElementById("profilePreview").src = e.target.result;
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      }
+      closeSettings();
+    }
+    function loadSettings() {
+      const savedName = localStorage.getItem("accountName");
+      if(savedName) document.getElementById("accountName").innerText = savedName;
+      const savedPic = localStorage.getItem("profilePic");
+      if(savedPic) document.getElementById("profilePreview").src = savedPic;
+    }
+    function loadTransactions() {
+      const container = document.getElementById("transactions");
+      container.innerHTML = "";
+      for(let i=0; i<100; i++) {
+        const amount = Math.floor(Math.random() * 200000) + 300000;
+        const type = Math.random() > 0.5 ? "Credit" : "Debit";
+        const div = document.createElement("div");
+        div.className = "transaction";
+        div.innerText = type + ": $" + amount.toLocaleString();
+        container.appendChild(div);
+      }
+    }
+  </script>
+</body>
+</html>
